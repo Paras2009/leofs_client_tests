@@ -2,7 +2,7 @@
 require "vendor/autoload.php";
 use Aws\Common\Enum\Region;
 use Aws\S3\S3Client;
-ini_set('memory_set',-1); //for unlimited memory allocation 
+ini_set('memory_set',-1);
 /* key ==> replace your Access_ID secret ==> replace your secret_key base_url ==> your leofs service address */
 
 $client = S3Client::factory(array(
@@ -10,84 +10,97 @@ $client = S3Client::factory(array(
   "secret" => "802562235",
   "region" => Region::US_EAST_1,
   "scheme" => "http",
-  //'base_url' => 'http://localhost:8080'
-  'base_url' => 'http://dev-aleofs'
+  'base_url' => 'http://localhost:8080'
+  
 ));
 try {
-	echo "Bucket List\n";
-	echo "------------\n";
+	echo "-------------Bucket List-------\n";
+
 // list buckets
 	$buckets = $client->listBuckets()->toArray();
 	foreach($buckets as $bucket){
 	print_r($bucket);
 	}
-	print("\n\n");
+
 	echo "Create New Bucket\n";
 // create bucket
 	$result = $client->createBucket(array(
 	"Bucket" => "test"
 	));
+	echo "Bucket Created Successfully \n";
 
-	echo "Put object into Bucket \n";
+	echo "Putting object into Bucket \n";
 // PUT object
 	$client->putObject(array(
 		"Bucket" => "test",
 		"Key" => "key-test",
 		"Body" => "Hello, world!"
 		));
+	echo "Successfully created data file to testi \n";
 
-	echo "Get object from Bucket";
+	echo "Getting object from Bucket \n ";
 // GET object
 	$object = $client->getObject(array(
 		"Bucket" => "test",
 		"Key" => "key-test"
 		));
 	print($object->get("Body"));
-	print("\n\n");
+	
 
-	echo "Head object\n" ;
+	echo "Head object\n " ;
+	
 // HEAD object
 	$headers = $client->headObject(array(
 		"Bucket" => "test",
 		"Key" => "key-test"
 		));
 	print_r($headers->toArray());
-
-	echo "delete object \n";
-// DELETE object
-	$client->deleteObject(array(
-		"Bucket" => "test",
-		"Key" => "key-test"
-		));
+	print("File is uploading \n");
 // PUT file
     $client->putObject(array(
 		"Bucket" => "test",
 		"Key" => "README",
 		"Body" => fopen('README', 'r')
 		));
-// HEAD object file
+	print("File Uploaded Successfully \n");
+// Download object file
     $headers = $client->headObject(array(
        "Bucket" => "test",          "Key" => "README"        ));
     print_r($headers->toArray());
-    print("\n");// GET object file
+    print("\n\n");// GET object file
     $object = $client->getObject(array(
         "Bucket" => "test",
         "Key" => "README",
         "SaveAs" => "README.copy"
     ));
-    print("\n");
+	echo "File Successfully downloaded \n ";
+// copy Object file
+$result = $client->copyObject(array('Bucket' => 'test','CopySource' => "{'test'}/{'key-test'}", 'Key' => 'REAME.copy',));
+	echo "File copied successfullyi \n";
+
+//list objects
+print("--------------------List Objects----------------- \n");
+$iterator = $client->getIterator('ListObjects', array( "Bucket" => "test" ));
+
+foreach ($iterator as $object) {
+    echo $object['Key']."\t".$object['Size']."\t".$object['LastModified']."\n";
+}
+
+
+    
 // DELETE object file
 	$client->deleteObject(array(
 		"Bucket" => "test",
 		"Key" => "README"
 	));
+	echo "File Deleted Successfully \n";
 	
-	echo "delete bucket\n";
+	echo "delete bucket \n";
 // delete bucket
 	$result = $client->deleteBucket(array(
 		"Bucket" => "test"
 	));
-	echo "bucket deleted\n ";
+	echo "Bucket deleted Successfully \n ";
 }
 catch (\Aws\S3\Exception\S3Exception $e)
 {
@@ -95,4 +108,3 @@ catch (\Aws\S3\Exception\S3Exception $e)
     echo $e->getMessage();
 }
 ?>
-
