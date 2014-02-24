@@ -16,69 +16,69 @@ $client = S3Client::factory(array(
 try {
 	echo "-------------Bucket List-------\n";
 
-// list buckets
+	// list buckets
 	$buckets = $client->listBuckets()->toArray();
     foreach($buckets as $bucket){
 		print_r($bucket);
     }
 
     echo "Create New Bucket\n";
-// create bucket
+	// create bucket
     $result = $client->createBucket(array(
 		"Bucket" => "test"
     ));
     echo "Bucket Created Successfully \n";
 
     echo "Putting object into Bucket \n";
-// PUT object
+	// PUT object
     $client->putObject(array( "Bucket" => "test", "Key" => "key-test", "Body" => "Hello, world!" ));
     echo "Successfully created data file to testi \n";
 
     echo "Getting object from Bucket \n ";
-// GET object
+	// GET object
     $object = $client->getObject(array( "Bucket" => "test", "Key" => "key-test" ));
     print($object->get("Body"));
     echo "Head object\n " ;
 	
-// HEAD object
+	// HEAD object
     $headers = $client->headObject(array( "Bucket" => "test", "Key" => "key-test" ));
     print_r($headers->toArray());
 	print("File is uploading \n");
 	
-// PUT file
+	// PUT file
     $client->putObject(array( "Bucket" => "test", "Key" => "README", "Body" => fopen('README', 'r') ));
     print("File Uploaded Successfully \n");
 	
-// Download object file
+	// Download object file
     $headers = $client->headObject(array( "Bucket" => "test", "Key" => "README" ));
     print_r($headers->toArray());
     print("\n\n");// GET object file
     $object = $client->getObject(array( "Bucket" => "test", "Key" => "README", "SaveAs" => "README.copy" ));
     echo "File Successfully downloaded \n ";
 	
-// copy Object file
+	// copy Object file
 	$result = $client->copyObject(array('Bucket' => 'test','CopySource' => "{'test'}/{'key-test'}", 'Key' => 'REAME.copy',));
-	echo "File copied successfullyi \n";
+	echo "File copied successfully \n";
 
-//list objects
+	//list objects
 	print("--------------------List Objects----------------- \n");
 	$iterator = $client->getIterator('ListObjects', array( "Bucket" => "test" ));
 	foreach ($iterator as $object) {
 		echo $object['Key']."\t".$object['Size']."\t".$object['LastModified']."\n";
 	}
 
-// DELETE object file
+	// DELETE object file
     $client->deleteObject(array( "Bucket" => "test", "Key" => "README" ));
     echo "File Deleted Successfully \n";
 	echo "delete bucket \n";
 	
-// delete bucket
+	// delete bucket
     $result = $client->deleteBucket(array( "Bucket" => "test" ));
     echo "Bucket deleted Successfully \n ";
 }
 catch (\Aws\S3\Exception\S3Exception $e)
 {
-// Exeception messages
+	// Exeception messages
 	echo $e->getMessage();
 }
 ?>
