@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# coding: utf8
-
 from boto.s3.connection import S3Connection, OrdinaryCallingFormat
 from boto.s3.bucket import Bucket
 from boto.s3.key import Key
@@ -26,13 +23,13 @@ try:
     print "--------Bucket List------"
     for bucket in conn.get_all_buckets():
         print bucket
-
-    # Create object 
+    bucket = conn.get_bucket(BUCKET_NAME)
+    # Create object
     s3_object = bucket.new_key("text")
     s3_object.set_contents_from_string("This is a text.")
     print "Successfully created text file"
-    
-    # Get Object 	
+
+    # Get Object
     s3_object = bucket.get_key("text")
     print "Object Data is :"
     print s3_object
@@ -42,16 +39,16 @@ try:
 
     # Write from file
     print "Uploading file.."
-    s3_object = bucket.new_key("photo.jpg")
-    s3_object.set_contents_from_filename("photo.jpg")
+    s3_object = bucket.new_key("README")
+    s3_object.set_contents_from_filename("../temp_data/README")
     # Print multipart_upload.upload()
     print "File uploaded Successfully"
 
     # File Download
-    s3_object.get_contents_to_filename("photo.jpg.copy")
+    s3_object.get_contents_to_filename("README.copy")
     print "File Downloaded Successfully"
     # File copy
-    bucket.copy_key('photo.jpg.copy',BUCKET_NAME, 'photo.jpg')
+    bucket.copy_key( "README.copy",BUCKET_NAME, "README" )
     print "File copied successfully"
 
     # Show Objects
@@ -65,7 +62,7 @@ try:
         print key.name , "Deleted Successfully", key.delete()
 
     # Get deleted key
-    s3_object = bucket.get_key("image")
+    s3_object = bucket.get_key("README")
     # It should print None
     print s3_object
 finally:
