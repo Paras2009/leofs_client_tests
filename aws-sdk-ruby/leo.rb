@@ -59,25 +59,25 @@ begin
   p metadata
 
   # Multi part
-    
-  file_path_for_multipart_upload = '32M.dat'
+
+  file_path_for_multipart_upload = "../temp_data/README"
   print "File is being upload : \n "
   open(file_path_for_multipart_upload) do |file|
     counter = file.size / 20242880
     uploading_object = bucket.objects[File.basename(file.path)]
     uploading_object.multipart_upload do |upload|
       while !file.eof?
-        puts " #{upload.id} \t\t  #{counter} " 
+        puts " #{upload.id} \t\t  #{counter} "
         counter -= 1
         upload.add_part(file.read 20242880) ## 20MB ##
-        p('Aborted') if upload.aborted?
+        p("Aborted") if upload.aborted?
       end
     end
   end
   print "File Uploaded Successfully \n"
-  large_object = bucket.objects["32M.dat"]
-  # HEAD    
-  metadata = large_object.head 
+  large_object = bucket.objects["README"]
+  # HEAD
+  metadata = large_object.head
   p metadata
 
   # GET(To be handled at the below rescure block)
@@ -85,7 +85,7 @@ begin
   p image
 
   # Copy object
-  bucket.objects["32M.dat.copy"].copy_from("32M.dat") 
+  bucket.objects["README.copy"].copy_from("README")
   print "File copied successfully \n"
 
   # Rename object or move object
@@ -96,22 +96,22 @@ begin
   # show objects in the bucket
   print "----------List Files--------- \n"
   bucket.objects.with_prefix("").each do |obj|
-    puts "  #{obj.key} \t #{obj.content_length} " 
+    puts "  #{obj.key} \t #{obj.content_length} "
   end
 
   #Download File
-  File.open('32M.dat.copy', 'wb') do |file|
-    bucket.objects['32M.dat'].read do |chunk|
+  File.open("README.copy", "wb") do |file|
+    bucket.objects["README"].read do |chunk|
         file.write(chunk)
     end
-    print "File Downloaded Successfully \n "	
+    print "File Downloaded Successfully \n "
   end
 
   # Delete objects one by one
   print "--------------------Delete Files-------------------- \n"
   bucket.objects.with_prefix("").each do |obj|
     obj.delete
-    print " #{obj.key} \t\t File Deleted Successfully.. \n" 
+    print " #{obj.key} \t\t File Deleted Successfully.. \n"
   end
 rescue AWS::S3::Errors::NoSuchKey
   exit
@@ -120,6 +120,8 @@ rescue
   p $!
   exit(-1)
 ensure
+  # Bucket Delete
+  bucket = s3.buckets[Bucket]
   bucket.clear!  #clear the versions only
   bucket.delete
   print "Bucket deleted Successfully \n"
