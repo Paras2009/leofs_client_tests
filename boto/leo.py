@@ -66,6 +66,7 @@ try:
     # It should print None
     print s3_object
 finally:
+    # Delete Bucket
     bucket = conn.get_bucket(BUCKET_NAME)
     bucket.delete()
     print "Bucket deleted Successfully \n"
