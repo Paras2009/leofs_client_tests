@@ -14,7 +14,7 @@ $client = S3Client::factory(array(
 ));
 
 try {
-    echo "-------------Bucket List-------\n";
+    print "-------------Bucket List-------\n";
 
     // List buckets
     $buckets = $client->listBuckets()->toArray();
@@ -22,24 +22,24 @@ try {
         print_r($bucket);
     }
 
-    echo "Create New Bucket\n";
+    print "Create New Bucket\n";
     $bucket_name="test";
     // Create bucket
     $result = $client->createBucket(array(
         "Bucket" => $bucket_name
     ));
-    echo "Bucket Created Successfully \n";
+    print "Bucket Created Successfully \n";
 
-    echo "Putting object into Bucket \n";
+    print "Putting object into Bucket \n";
     // PUT object
     $client->putObject(array( "Bucket" => $bucket_name, "Key" => "key-test", "Body" => "Hello, world!" ));
-    echo "Successfully created data file to testi \n";
+    print "Successfully created data file to testi \n";
 
-    echo "Getting object from Bucket \n ";
+    print "Getting object from Bucket \n ";
     // GET object
     $object = $client->getObject(array( "Bucket" => $bucket_name, "Key" => "key-test" ));
     print($object->get("Body"));
-    echo "Head object\n " ;
+    print "Head object\n " ;
 
     // HEAD object
     $headers = $client->headObject(array( "Bucket" => $bucket_name, "Key" => "key-test" ));
@@ -53,33 +53,34 @@ try {
     // Download object file
     $headers = $client->headObject(array( "Bucket" => $bucket_name, "Key" => "README" ));
     print_r($headers->toArray());
-    print("\n\n");// GET object file
+    print("\n\n");
+    // GET object file
     $object = $client->getObject(array( "Bucket" => $bucket_name, "Key" => "README", "SaveAs" => "README.copy" ));
-    echo "File Successfully downloaded \n ";
+    print "File Successfully downloaded \n ";
 
-    // copy Object file
+    // Copy Object file
     $result = $client->copyObject(array( "Bucket" => $bucket_name, "CopySource" => "/{$bucket_name}/README", "Key" => "README.copy",));
-    echo "File copied successfully \n";
+    print "File copied successfully \n";
 
     // List objects
     print("--------------------List Objects----------------- \n");
     $iterator = $client->getIterator( "ListObjects" , array( "Bucket" => $bucket_name ));
     foreach ($iterator as $object) {
-        echo $object["Key"]."\t".$object["Size"]."\t".$object["LastModified"]."\n";
+        print $object["Key"]."\t".$object["Size"]."\t".$object["LastModified"]."\n";
     }
 
     // DELETE object file
     $client->deleteObject(array( "Bucket" => $bucket_name, "Key" => "README" ));
-    echo "File Deleted Successfully \n";
-    echo "delete bucket \n";
+    print "File Deleted Successfully \n";
+    print "delete bucket \n";
 
-    // delete bucket
+    // DELETE bucket
     $result = $client->deleteBucket(array( "Bucket" => $bucket_name ));
-    echo "Bucket deleted Successfully \n ";
+    print "Bucket deleted Successfully \n ";
 }
 catch (\Aws\S3\Exception\S3Exception $e)
 {
     // Exeception messages
-    echo $e->getMessage();
+    print $e->getMessage();
 }
 ?>
