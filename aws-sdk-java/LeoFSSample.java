@@ -77,25 +77,26 @@ public class LeoFSSample {
             dumpInputStream(object.getObjectContent(),fileName+".copy");
 
             // File copy bucket internally
-            //s3.copyObject( bucketName, file.getName(), bucketName, fileName+".copy");
+            s3.copyObject( bucketName, file.getName(), bucketName, fileName+".copy");
             System.out.println("File copied successfully");
 
             // Retrieve list of objects from the LeoFS
             ObjectListing objectListing =
                 s3.listObjects(new ListObjectsRequest().withBucketName(bucketName));
             System.out.println("-----List objects----");
-            List<KeyVersion> keys = new ArrayList<KeyVersion>();
+            //List<KeyVersion> keys = new ArrayList<KeyVersion>();
             for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-                System.out.println(objectSummary.getKey() + "Size:" + objectSummary.getSize());
+                System.out.println(objectSummary.getKey() + " \t  Size:" + objectSummary.getSize());
                 keys.add(new KeyVersion(objectSummary.getKey()));
             }
 
-            // DELETE an object from the LeoFS
+            // DELETE an object from the LeoFS for future use
             //DeleteObjectsRequest multiObjectDeleteRequest = new DeleteObjectsRequest(bucketName).withKeys(keys);
             //DeleteObjectsResult delObjRes= s3.deleteObjects(multiObjectDeleteRequest);
             //System.out.println("File deleted Successfully :" + delObjRes.getDeletedObjects().size());
             s3.deleteObject(bucketName, key);
             s3.deleteObject(bucketName, fileName);
+            s3.deleteObject(bucketName, fileName+".copy");
             System.out.println("File deleted Successfully :" );
 
             // DELETE a bucket from the LeoFS
@@ -108,7 +109,14 @@ public class LeoFSSample {
               System.out.println(ace.getMessage());
         }
     }
-
+    /**
+     * Creates a temporary file with text data to demonstrate uploading a file
+     * to LeoFS 
+     *
+     * @return A newly created temporary file with text data.
+     *
+     * @throws IOException
+     */
     private static File createFile() throws IOException {
         File file = File.createTempFile("leofs_test", ".txt");
         file.deleteOnExit();
@@ -117,6 +125,14 @@ public class LeoFSSample {
         writer.close();
         return file;
     }
+    /**
+     * Displays the contents of the specified input stream as text.
+     *
+     * @param input
+     * The input stream to display as text.
+     *
+     * @throws IOException
+     */
     private static void dumpInputStream(InputStream input,String fileName) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         File file=new File(fileName);
