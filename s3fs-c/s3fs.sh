@@ -16,7 +16,7 @@ mv /mnt/s3fs-fuse/README.copy /mnt/s3fs-fuse/README.org && \
 ls -l /mnt/s3fs-fuse && \
 echo "File Move or Rename Successfully" &&\
 rm -f /mnt/s3fs-fuse/README /mnt/s3fs-fuse/README.org && \
-echo "File Move or Rename Successfully" &&\
+echo "File Deleted Successfully" &&\
 ls /mnt/s3fs-fuse && \
 umount  /mnt/s3fs-fuse
 s3cmd rb s3://test
