@@ -18,5 +18,5 @@ echo "File Move or Rename Successfully" &&\
 rm -f /mnt/s3fs-fuse/README /mnt/s3fs-fuse/README.org && \
 echo "File Deleted Successfully" &&\
 ls /mnt/s3fs-fuse && \
-umount  /mnt/s3fs-fuse
+fusermount -u  /mnt/s3fs-fuse
 s3cmd rb s3://test

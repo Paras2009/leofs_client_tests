@@ -9,7 +9,7 @@
 -define(AWS_HOST,       "localhost").
 -define(AWS_PORT,       8080).
 -define(FILENAME,       "README").
--define(BUCKETNAME,     "erlang").
+-define(BUCKETNAME,     "test").
 main(_Args) ->
     ok = code:add_paths(["ebin",
                          "deps/erlcloud/ebin",

@@ -16,14 +16,14 @@ conn = S3Connection(AWS_ACCESS_KEY,
 
 try:
     # Create bucket
-    bucket = conn.create_bucket(BUCKET_NAME)
+    buckets = conn.create_bucket(BUCKET_NAME)
     print "Bucket Created Successfully"
 
     # Show buckets
     print "--------Bucket List------"
     for bucket in conn.get_all_buckets():
         print bucket
-    bucket = conn.get_bucket(BUCKET_NAME)
+    # bucket = conn.get_bucket(BUCKET_NAME)
     # Create object
     s3_object = bucket.new_key("text")
     s3_object.set_contents_from_string("This is a text.")
@@ -48,7 +48,7 @@ try:
     s3_object.get_contents_to_filename("README.copy")
     print "File Downloaded Successfully"
     # File copy
-    bucket.copy_key( "README.copy",BUCKET_NAME, "README" )
+    bucket.copy_key( "README.copy", BUCKET_NAME, "README" )
     print "File copied successfully"
 
     # Show Objects
@@ -67,6 +67,6 @@ try:
     print s3_object
 finally:
     # Delete Bucket
-    bucket = conn.get_bucket(BUCKET_NAME)
+    # bucket = conn.get_bucket(BUCKET_NAME)
     bucket.delete()
     print "Bucket deleted Successfully \n"

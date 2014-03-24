@@ -1,7 +1,7 @@
 #!/bin/bash
 
 s3cmd mb s3://test
-sudo -u jenkins s3fuse -o allow_other /mnt/s3fuse &&\
+s3fuse -o allow_other /mnt/s3fuse &&\
 echo "Bucket Mounted Successfully" && \
 cp -p ../temp_data/README /mnt/s3fuse && \
 echo "File Uploaded to LeoFS" && \
@@ -18,5 +18,5 @@ ls -l /mnt/s3fuse && \
 rm -f /mnt/s3fuse/README /mnt/s3fuse/README.org && \
 echo "File Deleted Successfully" &&\
 ls /mnt/s3fuse && \
-umount  /mnt/s3fuse
+/usr/bin/fusermount -u  /mnt/s3fuse
 s3cmd rb s3://test

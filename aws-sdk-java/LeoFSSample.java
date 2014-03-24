@@ -87,7 +87,7 @@ public class LeoFSSample {
             //List<KeyVersion> keys = new ArrayList<KeyVersion>();
             for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
                 System.out.println(objectSummary.getKey() + " \t  Size:" + objectSummary.getSize());
-                keys.add(new KeyVersion(objectSummary.getKey()));
+               //keys.add(new KeyVersion(objectSummary.getKey()));
             }
 
             // DELETE an object from the LeoFS for future use
