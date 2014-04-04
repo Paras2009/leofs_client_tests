@@ -5,7 +5,7 @@ which s3cmd && \
     s3cmd mb s3://test && \
     echo "Bucket Created Successfully" && \
     s3cmd put ../temp_data/testFile s3://test/testFile && \
-    echo "File Uploaded to LeoFS"
+    echo "File Uploaded Successfully"
     s3cmd ls s3://test && \
     s3cmd get s3://test/testFile testFile.copy && \
     echo "File Downloaded Sucessfully" && \
