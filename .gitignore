@@ -3,4 +3,4 @@
 /aws-sdk-java/lib/aws-java-sdk-1.6.5-sources.jar
 /aws-sdk-java/lib/aws-java-sdk-1.6.5.jar
 /aws-sdk-java/lib/aws-java-sdk-flow-build-tools-1.6.5.jar
-/bootstrap.sh
+/aws-sdk-nodejs/node_modules/*
