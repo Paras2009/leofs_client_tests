@@ -8,7 +8,7 @@
 -define(AWS_SECRET_KEY, "802562235").
 -define(AWS_HOST,       "localhost").
 -define(AWS_PORT,       8080).
--define(FILENAME,       "README").
+-define(FILENAME,       "testFile").
 -define(BUCKETNAME,     "test").
 main(_Args) ->
     ok = code:add_paths(["ebin",
@@ -34,7 +34,7 @@ main(_Args) ->
         erlcloud_s3:put_object(?BUCKETNAME, "test-key", "value", [], Conf2),
         io:format("Successfully created text file \n"),
         % PUT an file into the LeoFS
-        {ok, Data} = file:read_file('../temp_data/README'),
+        {ok, Data} = file:read_file('../temp_data/testFile'),
         erlcloud_s3:put_object(?BUCKETNAME, ?FILENAME, Data, Conf2),
         io:format("File Uploaded Successfully \n"),
 
@@ -52,7 +52,7 @@ main(_Args) ->
         % GET an file object from the LeoFS
         [{_,_},{_,_},{_,_},{_,_},{_,_},{content,Objec}] = erlcloud_s3:get_object(?BUCKETNAME, ?FILENAME, [], Conf2),
         Tmp = iolist_to_binary(Objec),
-        file:write_file('README.copy', Tmp),
+        file:write_file('testFile.copy', Tmp),
         io:format("File Downloaded Successfully \n"),
         % GET an object metadata from the LeoFS
         Meta = erlcloud_s3:get_object_metadata(?BUCKETNAME, "test-key", Conf2),
@@ -74,3 +74,4 @@ main(_Args) ->
         io:format("Bucket Deleted Successfully")
     end,
     ok.
+

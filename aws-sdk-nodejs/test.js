@@ -8,6 +8,7 @@ AWS.config.update({
   endpoint: 'http://test.localhost:8080'
 });
 var s3 = new AWS.S3();
+
 // Create bucket and create text objects
 s3.createBucket({Bucket: bucket}, function(err,data) {
   if(err)
@@ -15,20 +16,21 @@ s3.createBucket({Bucket: bucket}, function(err,data) {
   else
     console.log('Bucket Created Successfully');
 });
+
 // Create text file
 var params = {Bucket: bucket, Key: 'myKey', Body: 'Hello!', ContentType: 'text/plain', ContentEncoding: 'utf8'};
 s3.putObject(params, function(err, data) {
   if (err)
     console.log(err);
   else
-    console.log('Successfully created data file to test/myKey');
+    console.log('File Created Successfully');
 
   // Multipart Upload
   var startTime = new Date();
   var partNum = 0;
-  var fileKey = 'README';
+  var fileKey = 'testFile';
   var buffer = fs.readFileSync('../temp_data/'+fileKey);
-  var partSize = 1024 * 1024 * 50; // Minimum 5MB per chunk
+  var partSize = 1024 * 1024 * 5; // Minimum 5MB per chunk
   var numPartsLeft = Math.ceil(buffer.length / partSize);
   var maxUploadTries = 3;
   var multiPartParams = { Bucket: bucket, Key: fileKey, };
@@ -46,7 +48,7 @@ s3.putObject(params, function(err, data) {
 
         // Download File
         console.log('File Downloading has been started ');
-        var stream = fs.createWriteStream('README.copy', { flags: 'w', mode: 0666 });
+        var stream = fs.createWriteStream('testFile.copy', { flags: 'w', mode: 0666 });
         s3.getObject({ Bucket: bucket, Key: fileKey}).
         on('httpData', function(chunk) {  stream.write(chunk); }).
         on('httpDone', function() { stream.end(); console.log('File Successfully downloaded  ');
@@ -145,3 +147,4 @@ s3.putObject(params, function(err, data) {
   });
 
 });
+
