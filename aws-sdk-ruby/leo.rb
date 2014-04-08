@@ -1,11 +1,14 @@
 ## This code supports "aws-sdk v1.9.5"
 require "aws-sdk"
+require "content_type"
 
+# set your s3 key and variable 
 Endpoint = "localhost"
 Port = 8080
-# set your s3 key
 AccessKeyId = "05236"
 SecretAccessKey = "802562235"
+FileName = "testFile"
+ChunkSize = 20242880
 time=Time.new
 Bucket = "test" + time.strftime("%dd%H%M%S")   #Dynamic BucketName
 
@@ -34,168 +37,178 @@ AWS.config(
 
 s3 = AWS::S3.new
 begin
-  
   # Create bucket
   s3.buckets.create(Bucket)
-  print "Bucket Created Successfully \n"
+  print "Bucket Created Successfully\n"
 
   # Get bucket
   bucket = s3.buckets[Bucket]
+  print "Get Bucket Successfully\n\n"
+
+  # PUT Object
+  file_path = "../temp_data/" + FileName
+  file =  open(file_path)
+
+  # PUT object using single-part method
+  obj = bucket.objects[FileName + ".single"].write(file: file_path, content_type: file.content_type)
+
+  # PUT object using multi-part method
+  print "File is being upload :\n "
+  counter = file.size / ChunkSize
+  uploading_object = bucket.objects[File.basename(file.path)]
+  uploading_object.multipart_upload(:content_type => file.content_type.to_s) do |upload|
+    while !file.eof?
+      puts " #{upload.id} \t\t #{counter} "
+      counter -= 1
+      upload.add_part(file.read ChunkSize) ## 20MB Default size is 5242880 Byte  ##
+      p("Aborted") if upload.aborted?
+    end
+  end
+  print "File Uploaded Successfully\n\n"
+
+  # Get object 
+  obj = bucket.objects[FileName]
+
+  # HEAD object
+  metadata = obj.head
+  print "File MetaData : "
+  p  metadata
+
+ # GET object(To be handled at the below rescue block)
+  if file.content_type.eql? "text/plain"
+    print "\nSingle Part Upload object data : \t" + bucket.objects[FileName + ".single"].read
+    print "Multi Part Upload object data : \t" +  obj.read + "\n"
+  else
+    print "File Content type is :" + obj.content_type + "\n"
+  end
+
+  # Copy object
+  bucket.objects[FileName + ".copy"].copy_from(FileName)
+  if !bucket.objects[FileName + ".copy"].exists?
+    raise "File could not Copy Succesfully\n"
+  end
+  print "File copied successfully \n"
+
+  # List objects in the bucket
+  print "----------List Files---------\n"
+  bucket.objects.with_prefix("").each do |obj|
+    puts "#{obj.key} \t #{obj.content_length}"
+  end
+
+  # Move object 
+  obj = bucket.objects[FileName + ".copy"].move_to(FileName + ".org");
+  if !obj.exists?
+    raise "File could not Moved Succesfully\n"
+  end
+  print "\nFile move Successfully \n"
+
+  # List objects in the bucket
+  print "----------List Files---------\n"
+  bucket.objects.with_prefix("").each do |obj|
+    puts "#{obj.key} \t #{obj.content_length}"
+  end
+
+  # Rename object 
+  obj = bucket.objects[FileName + ".org"].rename_to(FileName + ".copy");
+  if !obj.exists?
+    raise "File could not Rename Succesfully\n"
+  end
+  print "\nFile rename Successfully \n"
+
+ # List objects in the bucket
+  print "----------List Files---------\n"
+  bucket.objects.with_prefix("").each do |obj|
+    puts "#{obj.key} \t #{obj.content_length}"
+  end
+
+  # Download File
+  File.open(FileName + ".copy", "wb") do |file|
+    bucket.objects[FileName].read do |chunk|
+      file.write(chunk)
+    end
+    print "\nFile Downloaded Successfully \n\n"
+  end
+
+  # Delete objects one by one and check if exist
+  print "--------------------Delete Files--------------------\n"
+  bucket.objects.with_prefix("").each do |obj|
+    obj.delete
+    print "#{obj.key} \t File Deleted Successfully..\n"
+    if obj.exists?
+      raise "Object is not Deleted Succesfully\n"
+    end
+  end
 
   # Get-Put ACL
-  puts "#####Default ACL#####"
-  p "Owner ID : #{bucket.acl.owner.id} "
-  p "Owner Display name : #{bucket.acl.owner.display_name} "
+  puts "\n#####Default ACL#####"
+  puts "Owner ID : #{bucket.acl.owner.id} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name} "
   permissions = []
   bucket.acl.grants.each do |grant|
-    p "Bucket ACL is :  #{grant.permission.name} "
-    p "Bucket Grantee URI is : #{grant.grantee.uri} "
+    puts "Bucket ACL is :  #{grant.permission.name} "
+    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    permissions << grant.permission.name
+  end
+  if !permissions.include? :full_control
+    raise "Permission is Not full_control"
+  else
+    print "Bucket ACL permission is 'private'\n\n"
+  end
+
+  puts "#####:public_read ACL#####"
+  bucket.acl = :public_read
+  puts "Owner ID : #{bucket.acl.owner.id} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  permissions = []
+  bucket.acl.grants.each do |grant|
+    puts "Bucket ACL is :  #{grant.permission.name} "
+    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    permissions << grant.permission.name
+  end
+  if !( (permissions.include? :read ) && (permissions.include? :read_acp ) )
+    raise "Permission is Not public_read"
+  else
+    print "Bucket ACL Successfully changed to 'public-read'\n\n"
+  end
+
+  puts "#####:public_read_write ACL#####"
+  bucket.acl = :public_read_write
+  puts "Owner ID : #{bucket.acl.owner.id} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  permissions = []
+  bucket.acl.grants.each do |grant|
+    puts "Bucket ACL is :  #{grant.permission.name} "
+    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    permissions << grant.permission.name
+  end  if !( (permissions.include? :read ) && (permissions.include? :write ) && (permissions.include? :read_acp ) && (permissions.include? :write_acp ) )
+    raise "Permission is Not public_read_write"
+  else
+    print "Bucket ACL Successfully changed to 'public-read-write'\n\n"
+  end
+
+  puts "#####:private ACL#####"
+  bucket.acl = :private
+  puts "Owner ID : #{bucket.acl.owner.id} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  permissions = []
+  bucket.acl.grants.each do |grant|
+    puts "Bucket ACL is :  #{grant.permission.name} "
+    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
     permissions << grant.permission.name
   end
   if  !permissions.include? :full_control
     raise "Permission is Not full_control"
   else
-    print "Bucket ACL permission is 'private'.\n"
+    print "Bucket ACL Successfully changed to 'private'\n\n"
   end
-    
-  puts "#####:public_read ACL#####"
-  bucket.acl = :public_read
-  p "Owner ID : #{bucket.acl.owner.id} "
-  p "Owner Display name : #{bucket.acl.owner.display_name} "
-  permissions = []
-  bucket.acl.grants.each do |grant|
-    p "Bucket ACL is :  #{grant.permission.name} "
-    p "Bucket Grantee URI is : #{grant.grantee.uri} "
-     permissions << grant.permission.name
-  end
-  if !( (permissions.include? :read ) && (permissions.include? :read_acp ) )
-    raise "Permission is Not public_read"
-  else
-    print "Bucket ACL Successfully changed to 'public-read'.\n"
-  end
-
-  puts "#####:public_read_write ACL#####"
-  bucket.acl = :public_read_write
-  p "Owner ID : #{bucket.acl.owner.id} "
-  p "Owner Display name : #{bucket.acl.owner.display_name} "
-  permissions = []
-  bucket.acl.grants.each do |grant|
-    p "Bucket ACL is :  #{grant.permission.name} "
-    p "Bucket Grantee URI is : #{grant.grantee.uri} "
-    permissions << grant.permission.name
-  end
-  if !( (permissions.include? :read ) && (permissions.include? :write ) && (permissions.include? :read_acp ) && (permissions.include? :write_acp ) )
-    raise "Permission is Not public_read_write"
-  else
-    print "Bucket ACL Successfully changed to 'public-read-write'.\n"
-  end
-
-  puts "#####:private ACL#####"
-  bucket.acl = :private
-  p "Owner ID : #{bucket.acl.owner.id} "
-  p "Owner Display name : #{bucket.acl.owner.display_name} "
-  permissions = []
-  bucket.acl.grants.each do |grant|
-    p "Bucket ACL is :  #{grant.permission.name} "
-    p "Bucket Grantee URI is : #{grant.grantee.uri} "
-    permissions << grant.permission.name
-  end
-  if  !permissions.include? :full_control    
-    raise "Permission is Not full_control"  
-  else
-    print "Bucket ACL Successfully changed to 'private'.\n"
-  end
-  
-  
-  # Create a new object
-  object = bucket.objects.create("image", "value")
-  print "Successfully created text file \n"
-  
-  # Retrieve an object
-  print "Your object is :"
-  object = bucket.objects["image"]
-  
-  # Insert an object
-  object.write(
-    file: "test.txt",
-    content_type: "text/plain"
-  )
-  
-  # Read image
-  image = object.read
-  p image
-  print "File MetaData\n"
-  
-  # HEAD
-  metadata = object.head
-  p metadata
-
-  # Multi part
-  file_path_for_multipart_upload = "../temp_data/testFile"
-  print "File is being upload : \n "
-  open(file_path_for_multipart_upload) do |file|
-    counter = file.size / 20242880
-    uploading_object = bucket.objects[File.basename(file.path)]
-    uploading_object.multipart_upload do |upload|
-      while !file.eof?
-        puts " #{upload.id} \t\t  #{counter} "
-        counter -= 1
-        upload.add_part(file.read 20242880) ## 20MB ##
-        p("Aborted") if upload.aborted?
-      end
-    end
-  end
-  print "File Uploaded Successfully \n"
-  large_object = bucket.objects["testFile"]
-  
-  # HEAD
-  metadata = large_object.head
-  p metadata
-
-  # GET(To be handled at the below rescure block)
-  image = object.read
-  p image
-
-  # Copy object
-  bucket.objects["testFile.copy"].copy_from("testFile")
-  print "File copied successfully \n"
-
-  # Rename object or move object
-  bucket.objects["image"].move_to("new_image");
-  #bucket.objects["image"].rename_to("new_image");
-  print "File rename or move Successfully \n"
-
-  # show objects in the bucket
-  print "----------List Files--------- \n"
-  bucket.objects.with_prefix("").each do |obj|
-    puts "  #{obj.key} \t #{obj.content_length} "
-  end
-
-  #Download File
-  File.open("testFile.copy", "wb") do |file|
-    bucket.objects["testFile"].read do |chunk|
-        file.write(chunk)
-    end
-    print "File Downloaded Successfully \n "
-  end
-  
-  # Delete objects one by one
-  print "--------------------Delete Files-------------------- \n"
-  bucket.objects.with_prefix("").each do |obj|
-    obj.delete
-    print " #{obj.key} \t\t File Deleted Successfully.. \n"
-  end
-rescue AWS::S3::Errors::NoSuchKey
-  exit
-rescue  
-  # unexpected error occured
+rescue
+  # Unexpected error occured
   p $!
   exit(-1)
 ensure
-  
   # Bucket Delete
   bucket = s3.buckets[Bucket]
   bucket.clear!  #clear the versions only
   bucket.delete
   print "Bucket deleted Successfully \n"
-end
+end          
