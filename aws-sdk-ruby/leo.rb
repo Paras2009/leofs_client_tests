@@ -85,7 +85,7 @@ begin
   # Copy object
   bucket.objects[FileName + ".copy"].copy_from(FileName)
   if !bucket.objects[FileName + ".copy"].exists?
-    raise "File could not Copy Succesfully\n"
+    raise "File could not Copy Successfully\n"
   end
   print "File copied successfully \n"
 
@@ -98,7 +98,7 @@ begin
   # Move object 
   obj = bucket.objects[FileName + ".copy"].move_to(FileName + ".org");
   if !obj.exists?
-    raise "File could not Moved Succesfully\n"
+    raise "File could not Moved Successfully\n"
   end
   print "\nFile move Successfully \n"
 
@@ -111,7 +111,7 @@ begin
   # Rename object 
   obj = bucket.objects[FileName + ".org"].rename_to(FileName + ".copy");
   if !obj.exists?
-    raise "File could not Rename Succesfully\n"
+    raise "File could not Rename Successfully\n"
   end
   print "\nFile rename Successfully \n"
 
@@ -135,18 +135,18 @@ begin
     obj.delete
     print "#{obj.key} \t File Deleted Successfully..\n"
     if obj.exists?
-      raise "Object is not Deleted Succesfully\n"
+      raise "Object is not Deleted Successfully\n"
     end
   end
 
   # Get-Put ACL
   puts "\n#####Default ACL#####"
-  puts "Owner ID : #{bucket.acl.owner.id} "
-  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  puts "Owner ID : #{bucket.acl.owner.id}"
+  puts "Owner Display name : #{bucket.acl.owner.display_name}"
   permissions = []
   bucket.acl.grants.each do |grant|
-    puts "Bucket ACL is :  #{grant.permission.name} "
-    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    puts "Bucket ACL is :  #{grant.permission.name}"
+    puts "Bucket Grantee URI is : #{grant.grantee.uri}"
     permissions << grant.permission.name
   end
   if !permissions.include? :full_control
@@ -158,11 +158,11 @@ begin
   puts "#####:public_read ACL#####"
   bucket.acl = :public_read
   puts "Owner ID : #{bucket.acl.owner.id} "
-  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name}"
   permissions = []
   bucket.acl.grants.each do |grant|
-    puts "Bucket ACL is :  #{grant.permission.name} "
-    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    puts "Bucket ACL is :  #{grant.permission.name}"
+    puts "Bucket Grantee URI is : #{grant.grantee.uri}"
     permissions << grant.permission.name
   end
   if !( (permissions.include? :read ) && (permissions.include? :read_acp ) )
@@ -174,13 +174,14 @@ begin
   puts "#####:public_read_write ACL#####"
   bucket.acl = :public_read_write
   puts "Owner ID : #{bucket.acl.owner.id} "
-  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name}"
   permissions = []
   bucket.acl.grants.each do |grant|
-    puts "Bucket ACL is :  #{grant.permission.name} "
-    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    puts "Bucket ACL is :  #{grant.permission.name}"
+    puts "Bucket Grantee URI is : #{grant.grantee.uri}"
     permissions << grant.permission.name
-  end  if !( (permissions.include? :read ) && (permissions.include? :write ) && (permissions.include? :read_acp ) && (permissions.include? :write_acp ) )
+  end
+  if !( (permissions.include? :read ) && (permissions.include? :write ) && (permissions.include? :read_acp ) && (permissions.include? :write_acp ) )
     raise "Permission is Not public_read_write"
   else
     print "Bucket ACL Successfully changed to 'public-read-write'\n\n"
@@ -189,11 +190,11 @@ begin
   puts "#####:private ACL#####"
   bucket.acl = :private
   puts "Owner ID : #{bucket.acl.owner.id} "
-  puts "Owner Display name : #{bucket.acl.owner.display_name} "
+  puts "Owner Display name : #{bucket.acl.owner.display_name}"
   permissions = []
   bucket.acl.grants.each do |grant|
-    puts "Bucket ACL is :  #{grant.permission.name} "
-    puts "Bucket Grantee URI is : #{grant.grantee.uri} "
+    puts "Bucket ACL is :  #{grant.permission.name}"
+    puts "Bucket Grantee URI is : #{grant.grantee.uri}"
     permissions << grant.permission.name
   end
   if  !permissions.include? :full_control
@@ -202,7 +203,7 @@ begin
     print "Bucket ACL Successfully changed to 'private'\n\n"
   end
 rescue
-  # Unexpected error occured
+  # Unexpected error occurred
   p $!
   exit(-1)
 ensure
