@@ -65,6 +65,15 @@ begin
   end
   puts "File Uploaded Successfully\n\n"
 
+  # List objects in the bucket
+  puts "----------List Files---------\n"
+  bucket.objects.with_prefix("").each do |obj|
+    if !fileObject.size.eql? obj.content_length
+       raise " Content length is changed for : #{obj.key}"
+    end
+    puts "#{obj.key} \t #{obj.content_length}"
+  end
+
   # HEAD object
   fileObject.seek(0)
   fileDigest = Digest::MD5.hexdigest(fileObject.read)
