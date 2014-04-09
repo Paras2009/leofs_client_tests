@@ -93,23 +93,16 @@ begin
   end
 
   # GET object(To be handled at the below rescue block)
+  if !fileObject.size.eql?  bucket.objects[FileName + ".single"].head.content_length
+    raise "\nSignle part Upload File content is not equal\n"
+  end
+  puts "\nSingle Part Upload object data :\t" + bucket.objects[FileName + ".single"].read
+  if !fileObject.size.eql? bucket.objects[FileName].head.content_length
+    raise "Multi Part Upload File content is not equal\n"
+  end
   if fileObject.content_type.eql? "text/plain"
-    if !fileObject.size.eql?  bucket.objects[FileName + ".single"].head.content_length
-      raise "\nSignle part Upload File content is not equal\n"
-    end
-    puts "\nSingle Part Upload object data : \t" + bucket.objects[FileName + ".single"].read
-    if !fileObject.size.eql? bucket.objects[FileName].head.content_length
-      raise "Multi Part Upload File content is not equal\n"
-    end
-    puts "Multi Part Upload object data : \t" +  bucket.objects[FileName].read + "\n"
+    puts "Multi Part Upload object data :\t" +  bucket.objects[FileName].read + "\n"
   else
-    if !fileObject.size.eql?  bucket.objects[FileName + ".single"].head.content_length
-      raise "\nSignle part Upload File content is not equal\n"
-    end
-    puts "\nFile Content type is :" + bucket.objects[FileName + ".single"].content_type + "\n"
-    if !fileObject.size.eql? bucket.objects[FileName].head.content_length
-      raise "Multi Part Upload File content is not equal\n"
-    end
     puts "File Content type is :" + bucket.objects[FileName].content_type + "\n\n"
   end
 
@@ -211,7 +204,7 @@ begin
     puts "Bucket Grantee URI is : #{grant.grantee.uri}"
     permissions << grant.permission.name
   end
-  if !( permissions == [:read, :read_acp] )
+  if !(permissions == [:read, :read_acp] )
     raise "Permission is Not public_read"
   else
     puts "Bucket ACL Successfully changed to 'public-read'\n\n"
@@ -243,7 +236,7 @@ begin
     puts "Bucket Grantee URI is : #{grant.grantee.uri}"
     permissions << grant.permission.name
   end
-  if  !(permissions == [:full_control])
+  if !(permissions == [:full_control])
     raise "Permission is Not full_control"
   else
     puts "Bucket ACL Successfully changed to 'private'\n\n"

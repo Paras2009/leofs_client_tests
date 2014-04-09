@@ -60,13 +60,12 @@ try:
         print "File MetaData : Content_type:", obj.content_type, "Content_encoding:", obj.content_encoding
         print "etag:", obj.etag, "Size:", obj.size, "Name:", obj.name, "\n"
 
+    # GET object
+    if not fileSize == obj.size:
+        raise "Upload File content is not equal\n"
     if "text/plain" in fileType:
-        if not fileSize == obj.size:
-            raise "Upload File content is not equal\n"
         print "Uploaded object data : \t", obj.read()
     else:
-        if not fileSize == obj.size:
-            raise "Upload File content is not equal\n"
         print "File Content type is :", obj.content_type + "\n"
 
     # Show Objects
@@ -112,13 +111,13 @@ try:
     print "\n#####Default ACL#####"
     acp = bucket.get_acl()
     print acp
-    print "Owner ID : " + acp.owner.id
+    print "Owner ID :" + acp.owner.id
     print "Owner Display name : " + acp.owner.display_name
     permissions = []
     for grant in acp.acl.grants:
         print "Bucket ACL is :", grant.permission,"\nBucket Grantee URI is :", grant.uri
         permissions.append(grant.permission)
-    if not all( x in permissions for x in ["FULL_CONTROL"]):
+    if not all(x in permissions for x in ["FULL_CONTROL"]):
         raise "Permission is Not full_control"
     else:
         print "Bucket ACL permission is  'private'\n"
@@ -132,7 +131,7 @@ try:
     for grant in acp.acl.grants:
         print "Bucket ACL is :", grant.permission,"\nBucket Grantee URI is :", grant.uri
         permissions.append(grant.permission)
-    if not all( x in permissions for x in ["READ","READ_ACP"]):
+    if not all(x in permissions for x in ["READ","READ_ACP"]):
          raise Exception("Permission is Not public_read")
     else:
         print "Bucket ACL Successfully changed to 'public-read'\n"
@@ -146,7 +145,7 @@ try:
     for grant in acp.acl.grants:
         print "Bucket ACL is :", grant.permission,"\nBucket Grantee URI is :", grant.uri
         permissions.append(grant.permission)
-    if not all( x in permissions for x in ["READ","READ_ACP","WRITE", "WRITE_ACP"]):
+    if not all(x in permissions for x in ["READ","READ_ACP","WRITE", "WRITE_ACP"]):
         raise "Permission is Not public_read_write"
     else:
         print "Bucket ACL Successfully changed to 'public-read-write'\n"
@@ -160,7 +159,7 @@ try:
     for grant in acp.acl.grants:
         print "Bucket ACL is :", grant.permission,"\nBucket Grantee URI is :", grant.uri
         permissions.append(grant.permission)
-    if not all( x in permissions for x in ["FULL_CONTROL"]):
+    if not all(x in permissions for x in ["FULL_CONTROL"]):
         raise "Permission is Not full_control"
     else:
         print "Bucket ACL Successfully changed to 'private'\n"
