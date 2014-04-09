@@ -109,7 +109,7 @@ begin
   if !bucket.objects[FileName + ".copy"].exists?
     raise "File could not Copy Successfully\n"
   end
-  puts "File copied successfully \n"
+  puts "File copied successfully\n"
 
   # List objects in the bucket
   puts "----------List Files---------\n"
@@ -125,7 +125,7 @@ begin
   if !obj.exists?
     raise "File could not Moved Successfully\n"
   end
-  puts "\nFile move Successfully \n"
+  puts "\nFile move Successfully\n"
 
   # List objects in the bucket
   puts "----------List Files---------\n"
@@ -153,11 +153,17 @@ begin
   end
 
   # Download File
-  File.open(FileName + ".copy", "wb") do |file|
+  File.open(FileName + ".copy", "w+") do |thisfileObject|
     bucket.objects[FileName].read do |chunk|
-      file.write(chunk)
+      thisfileObject.write(chunk)
     end
-    puts "\nFile Downloaded Successfully\n"
+    thisfileObject.seek(0)
+    thisfileDigest = Digest::MD5.hexdigest(thisfileObject.read)
+    if !((thisfileObject.size.eql? metadata.content_length) && (fileDigest.eql? thisfileDigest))
+      raise "Downloaded File Metadata could not match"
+    else
+      puts "\nFile Downloaded Successfully\n"
+    end
   end
 
   # Delete objects one by one and check if exist
@@ -188,7 +194,7 @@ begin
 
   puts "#####:public_read ACL#####"
   bucket.acl = :public_read
-  puts "Owner ID : #{bucket.acl.owner.id} "
+  puts "Owner ID : #{bucket.acl.owner.id}"
   puts "Owner Display name : #{bucket.acl.owner.display_name}"
   permissions = []
   bucket.acl.grants.each do |grant|
@@ -242,5 +248,5 @@ ensure
   bucket = s3.buckets[Bucket]
   bucket.clear!  #clear the versions only
   bucket.delete
-  puts "Bucket deleted Successfully \n"
+  puts "Bucket deleted Successfully\n"
 end
