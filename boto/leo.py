@@ -26,6 +26,7 @@ conn = S3Connection(AWS_ACCESS_KEY,
 
 try:
     # Create bucket
+    print "Bucket Creation Test [Start]\n"
     buckets = conn.create_bucket(BUCKET_NAME)
     print "Bucket Created Successfully"
 
@@ -33,6 +34,7 @@ try:
     print "--------Bucket List------"
     for bucket in conn.get_all_buckets():
         print bucket
+    print "Bucket Creation Test [End]\n"
 
     # Get Bucket
     bucket = conn.get_bucket(BUCKET_NAME,validate=False)
@@ -181,6 +183,8 @@ except Exception,e :
     print traceback.format_exc()
 finally:
     # Delete Bucket
+    print "Bucket Delete Test [Start]\n"
     bucket = conn.get_bucket(BUCKET_NAME,validate=False)
     bucket.delete()
-    print "Bucket deleted Successfully\n"
+    print "Bucket Deleted Successfully\n"
+    print "Bucket Delete Test [End]\n"
