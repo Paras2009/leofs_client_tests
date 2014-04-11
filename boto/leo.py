@@ -46,16 +46,22 @@ try:
     mimeType.load()
     file_type = mimeType.file(file_path)
 
+    # Files in Amazon S3 are called "objects" and are stored in buckets. A specific object is 
+    # referred to by its key (i.e., name) and holds data. Here, we create a new object with 
+    # the key name, HEAD request is Metadata of that object. e.g. Size, etag, Content_type etc.
+    # For more information http://boto.readthedocs.org/en/latest/s3_tut.html#storing-data
+
     # PUT Object using single-part method
+    print "File is being upload:"
     bucket.new_key(FILE_NAME).set_contents_from_filename(file_path)
+
     # HEAD Object
     obj = bucket.get_key(FILE_NAME)
     if not(obj.exists()):
         raise "Object doesn't exists"
     if not(file_size == obj.size and file_digest == obj.etag[1:-1]):
         raise "File Metadata could not match"
-    else:
-        print "File MetaData : Content_type:", obj.content_type, "\b, Content_encoding:", obj.content_encoding
+    else:        print "File MetaData : Content_type:", obj.content_type, "\b, Content_encoding:", obj.content_encoding
         print "\b, etag:", obj.etag, "\b, Size:", obj.size, "\b, Name:", obj.name, "\n"
 
     # GET object
@@ -64,7 +70,7 @@ try:
     if "text/plain" in file_type:
         print "Uploaded object data : \t", obj.read()
     else:
-        print "File Content type is :", obj.content_type + "\n"
+        print "File Content type is :", obj.content_type
 
     # Show Objects
     print"--------------------------------List Objects-----------------------------------"
