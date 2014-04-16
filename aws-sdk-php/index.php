@@ -111,7 +111,7 @@ try {
     if(!strcmp($file_type, "text/plain")) {
         print "Multi Part Upload Object Data:".$object->get("Body");
     } else {
-        print "Multi Part Upload Object Content type is :".$file_type;
+        print "Multi Part Upload Object Content type is :".$file_type."\n";
     }
     print "GET Object Test [End]\n\n";
 
@@ -155,6 +155,7 @@ try {
         }
         print $object["Key"]."\t"."File Deleted Successfully\n";
     }
+    print "DELETE Object Test [End]\n\n";
 
     // GET-PUT ACL
     print "Bucket ACL Test [Start]\n";
@@ -174,7 +175,7 @@ try {
         print "Bucket ACL permission is 'private'\n\n";
     }
 
-    print "\n#####:public_read ACL#####\n";
+    print "#####:public_read ACL#####\n";
     $client->putBucketAcl(array("ACL" => "public-read", "Bucket" => $bucket_name));
     $acp = $client->getBucketAcl(array("Bucket" => $bucket_name));
     print "Owner ID : ".$acp["Owner"]["ID"]."\n";
@@ -191,7 +192,7 @@ try {
         print "Bucket ACL Successfully changed to 'public-read'\n\n";
     }
 
-    print "\n#####:public_read_write ACL#####\n";
+    print "#####:public_read_write ACL#####\n";
     $client->putBucketAcl(array("ACL" => "public-read-write", "Bucket" => $bucket_name));
     $acp = $client->getBucketAcl(array("Bucket" => $bucket_name));
     print "Owner ID : ".$acp["Owner"]["ID"]."\n";
@@ -209,7 +210,7 @@ try {
         print "Bucket ACL Syccessfully changed to 'public-read-write'\n\n";
     }
 
-    print "\n#####:private ACL#####\n";
+    print "#####:private ACL#####\n";
     $client->putBucketAcl(array("ACL" => "private", "Bucket" => $bucket_name));
     $acp = $client->getBucketAcl(array("Bucket" => $bucket_name));
     print "Owner ID : ".$acp["Owner"]["ID"]."\n";
