@@ -97,7 +97,7 @@ try {
         throw new Exception("Sigle Part File Metadata could not match");
     }
     print_r($headers->toArray());
-    print "Single Part File MetaData Test passedSuccessfully\n";
+    print "Single Part File MetaData Test passed Successfully\n";
     print "Multi part File MetaData :";
     $headers = $client->headObject(array("Bucket" => $bucket_name, "Key" => $file_name));
     if(!($file_size == $headers["ContentLength"])
@@ -119,11 +119,11 @@ try {
         throw new Exception("Multi Part Upload File content is not equal\n");
     }
     if(!strcmp($file_type, "text/plain")) {
-        print "Multi Part Upload Object Data:".$object->get("Body");
+        print "Multi Part Upload Object Data:".$object->get("Body")."\n";
     } else {
         print "Multi Part Upload Object Content type is :".$file_type."\n";
     }
-    print "\nGet Object Test passed Successfully\n";
+    print "Get Object Test passed Successfully\n";
     print "GET Object Test [End]\n\n";
 
     // Download Object
