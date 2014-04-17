@@ -37,9 +37,9 @@ try {
 
     // PUT object
     print "Object Upload Test [Start]\n";
-    $file_path="../temp_data/".$file_name;
-    $file_size=filesize($file_path);
-    $file_type=mime_content_type ($file_path);
+    $file_path = "../temp_data/".$file_name;
+    $file_size = filesize($file_path);
+    $file_type = mime_content_type($file_path);
 
     // PUT Single-Part upload Object
     print "Single-Part File is being upload:\n";
@@ -48,6 +48,14 @@ try {
          throw new Exception("Single-part File could not Uploaded Successfully");
     }
     print "Single-Part File Uploaded Successfully\n";
+
+    /* Multipart upload allows you to upload a single object as a set of parts.Each part is a contiguous
+    portion of the object's data. You can upload these object parts independently and in any order. 
+    If transmission of any part fails, you can retransmit that part without affecting other parts. 
+    After all parts of your object are uploaded, LeoFS assembles these parts and creates the object. 
+    In general, when your object size reaches 100 MB, you should consider using multipart uploads instead
+    of uploading the object in a single operation. Advantages : Improved throughput, Quick recovery from 
+    any network issues, Pause and resume object uploads Begin an upload before you know the final object size. */
 
     // PUT Multi-Part Upload Object
     print "Multi-Part file is being Upload:\n";
@@ -75,7 +83,7 @@ try {
     }
     print "Object Upload Test [End]\n\n";
    
-    /* Files in Amazon S3 are called "objects" and are stored in buckets. A specific object is
+    /* Files in Amazon S3 & LeoFS are called "objects" and are stored in buckets. A specific object is
     referred to by its key (i.e., name) and holds data. Here, we create a new object with
     the key name, HEAD request is Metadata of that object. e.g. Size, etag, Content_type etc.
     For more information http://boto.readthedocs.org/en/latest/s3_tut.html#storing-data */
@@ -85,14 +93,14 @@ try {
     print "Single Part File MetaData :";
     $headers = $client->headObject(array("Bucket" => $bucket_name, "Key" => $file_name.".single"));
     if(!($file_size == $headers["ContentLength"])
-    && (!strcmp(md5_file($file_path), trim($headers["ETag"],"\"")))) {
+        && (!strcmp(md5_file($file_path), trim($headers["ETag"],"\"")))) {
         throw new Exception("Sigle Part File Metadata could not match");
     }
     print_r($headers->toArray());
     print "Multi part File MetaData :";
     $headers = $client->headObject(array("Bucket" => $bucket_name, "Key" => $file_name));
     if(!($file_size == $headers["ContentLength"])
-    && (!strcmp(md5_file($file_path), trim($headers["ETag"],"\"")))) {
+        && (!strcmp(md5_file($file_path), trim($headers["ETag"],"\"")))) {
         throw new Exception("Multi Part File Metadata could not match");
     }
     print_r($headers->toArray());
@@ -119,7 +127,7 @@ try {
     print "Download Object Test [Start]\n";
     $object = $client->getObject(array("Bucket" => $bucket_name, "Key" => "testFile", "SaveAs" => $file_name.".copy"));
     if(!(filesize($file_path) == filesize($file_name.".copy"))
-    && (!strcmp(md5_file($file_path),md5_file($file_name.".copy")))) {
+        && (!strcmp(md5_file($file_path),md5_file($file_name.".copy")))) {
         throw new Exception("Downloaded File MetaData Could not match\n");
     }
     print "File Successfully downloaded\n";
@@ -204,7 +212,7 @@ try {
         array_push($permissions,$grant["Permission"]);
     }
     if(!(in_array("READ", $permissions) && in_array("WRITE", $permissions)
-    && in_array("READ_ACP", $permissions) && in_array("WRITE_ACP", $permissions))) {
+        && in_array("READ_ACP", $permissions) && in_array("WRITE_ACP", $permissions))) {
         throw new Exception("Permission is Not public_read_write");
     } else {
         print "Bucket ACL Syccessfully changed to 'public-read-write'\n\n";
